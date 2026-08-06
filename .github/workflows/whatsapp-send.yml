@@ -1,0 +1,35 @@
+name: Enviar mensaje de WhatsApp
+
+on:
+  workflow_dispatch:
+    inputs:
+      to:
+        description: "Numero destino con codigo de pais, sin '+' (ej. 521XXXXXXXXXX)"
+        required: true
+      text:
+        description: "Texto del mensaje a enviar"
+        required: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Enviar mensaje
+        env:
+          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          GRAPH_API_VERSION: ${{ vars.GRAPH_API_VERSION }}
+          WHATSAPP_TO: ${{ inputs.to }}
+          WHATSAPP_TEXT: ${{ inputs.text }}
+        run: node scripts/send-message.js
